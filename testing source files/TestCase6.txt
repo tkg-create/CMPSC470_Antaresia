@@ -1,0 +1,4 @@
+# Test Case 6 - Variable Updates
+
+int a = 5
+a = 10

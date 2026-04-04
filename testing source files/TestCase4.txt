@@ -1,0 +1,5 @@
+# Test Case 4 - Boolean Expressions
+
+float x = 10.0
+bool large = x > 5
+bool small = x < 3

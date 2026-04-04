@@ -1,0 +1,4 @@
+# Test Case 8 - Error Handling: Undefined Variable Usage
+
+int a = 5
+int b = factorial(c)

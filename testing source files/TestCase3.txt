@@ -1,0 +1,7 @@
+# Test Case 3 - Geometry Functions
+
+float r = 5.0
+float circle_area = circ_area(r)
+float base = 10.0
+float height = 4.0
+float tri = tri_area(base,height)

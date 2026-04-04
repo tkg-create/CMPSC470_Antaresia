@@ -1,0 +1,6 @@
+# Test Case 1 - Basic Variable Declaration
+
+int a = 5
+float b = 3.2
+string name = "test"
+bool flag = true
