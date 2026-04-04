@@ -1,0 +1,10 @@
+# Example Antaresia Program
+
+float radius = 5
+float area = circ_area(radius)
+
+int n = 5
+int f = factorial(n)
+
+if area > 10
+    print(area)

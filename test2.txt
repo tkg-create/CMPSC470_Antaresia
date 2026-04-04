@@ -1,0 +1,45 @@
+# Example Antaresia Program Take 2
+
+string program_name = "Antaresia Math Demo"
+
+int n = 6
+int factorial_result = factorial(n)
+
+float radius = 5.0
+float circle_area = circ_area(radius)
+
+float base = 10.0
+float height = 4.0
+float triangle_area = tri_area(base, height)
+
+float width = 8.0
+float rect_height = 3.0
+float rectangle_area = rect_area(width, rect_height)
+
+float sphere_radius = 2.5
+float sphere_volume = sph_vol(sphere_radius)
+
+vector numbers = [1,2,3,4,5]
+matrix transform = [[1,0],[0,1]]
+
+float power_result = pow(2,8)
+float root_result = sqrt(144)
+
+bool large_circle = circle_area > 50
+bool large_triangle = triangle_area > 20
+
+if circle_area > triangle_area
+    print(circle_area)
+
+if large_circle == true
+    print("Circle is large")
+
+for i in numbers
+    print(i)
+
+float log_result = log(100)
+float absolute_val = abs(-25)
+
+parallel
+    float temp = pow(3,4)
+    print(temp)

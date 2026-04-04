@@ -1,0 +1,12 @@
+# Example Antaresia Program Take 3
+
+string program_name = "Antaresia Demo"
+int n = 6
+float radius = 5.0
+bool large_circle = true
+vector numbers = [1,2,3,4]
+matrix transform = [[1,0],[0,1]]
+
+n = 10
+radius = 8.5
+large_circle = false
