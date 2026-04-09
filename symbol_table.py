@@ -2,7 +2,7 @@ from tokenizer_testing import BOOLEAN_LITERALS, BUILTIN_FUNCTIONS
 from parser import Parser
 import re
 import math
-
+import os
 
 # Symbol Table Entry
 class Symbol:
@@ -265,8 +265,9 @@ def process_program(statements):
 def main():
 
     filename = input("Enter Source File: ")
+    filepath = os.path.join("testing source files", filename)
 
-    parser = Parser(filename)
+    parser = Parser(filepath)
 
     statements = parser.parse()
 

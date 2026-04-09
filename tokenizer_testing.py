@@ -1,5 +1,7 @@
 import re
 from collections import Counter
+import os
+
 
 # Antaresia Language Definitions
 DATA_TYPES = {
@@ -77,8 +79,9 @@ def tokenize(line):
 def process_file(filename):
 
     global lines_processed
+    filepath = os.path.join("testing source files", filename)
+    with open(filepath, "r") as file:
 
-    with open(filename, "r") as file:
 
         for line in file:
 
