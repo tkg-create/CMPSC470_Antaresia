@@ -1,4 +1,4 @@
-from tokenizer_testing import tokenize, DATA_TYPES
+from tokenizer import tokenize, DATA_TYPES
 
 
 class Parser:
@@ -9,27 +9,65 @@ class Parser:
 
     def parse(self):
 
-        with open(self.filename, "r") as file:
+        with open(self.filename) as f:
+            lines = f.readlines()
 
-            for line in file:
+        i = 0
 
-                line = line.strip()
+        while i < len(lines):
 
-                if not line:
-                    continue
+            raw = lines[i]
 
-                if line.startswith("#"):
-                    continue
+            if raw.strip() == "" or raw.strip().startswith("#"):
+                i += 1
+                continue
 
-                tokens = tokenize(line)
+            indent = len(raw) - len(raw.lstrip())
+            tokens = tokenize(raw.strip())
 
-                if not tokens:
-                    continue
+            if not tokens:
+                i += 1
+                continue
 
-                statement = self.parse_statement(tokens)
+            # Parallel Block
+            if tokens[0] == "parallel":
 
-                if statement:
-                    self.statements.append(statement)
+                block = []
+                i += 1
+
+                while i < len(lines):
+
+                    line = lines[i]
+
+                    if line.strip() == "":
+                        i += 1
+                        continue
+
+                    new_indent = len(line) - len(line.lstrip())
+
+                    if new_indent <= indent:
+                        break
+
+                    stmt = self.parse_statement(tokenize(line.strip()))
+
+                    if stmt:
+                        block.append(stmt)
+
+                    i += 1
+
+                self.statements.append({
+                    "type": "parallel",
+                    "body": block
+                })
+
+                continue
+
+            stmt = self.parse_statement(tokens)
+
+            if stmt:
+                self.statements.append(stmt)
+
+            i += 1
 
         return self.statements
 
@@ -37,19 +75,15 @@ class Parser:
 
         first = tokens[0]
 
-        # Variable Declaration
-        if first in DATA_TYPES:
+        if first in DATA_TYPES and len(tokens) >= 4 and tokens[2] == "=":
 
-            if len(tokens) >= 4 and tokens[2] == "=":
+            return {
+                "type": "declaration",
+                "datatype": tokens[0],
+                "name": tokens[1],
+                "value": tokens[3:]
+            }
 
-                return {
-                    "type": "declaration",
-                    "datatype": tokens[0],
-                    "name": tokens[1],
-                    "value": tokens[3:]
-                }
-
-        # Assignment
         if len(tokens) >= 3 and tokens[1] == "=":
 
             return {
@@ -58,29 +92,6 @@ class Parser:
                 "value": tokens[2:]
             }
 
-        # If Statement
-        if first == "if":
-
-            return {
-                "type": "if",
-                "condition": tokens[1:]
-            }
-
-        # For Loop
-        if first == "for":
-
-            if "in" in tokens:
-
-                var = tokens[1]
-                iterable = tokens[tokens.index("in") + 1]
-
-                return {
-                    "type": "for",
-                    "variable": var,
-                    "iterable": iterable
-                }
-
-        # Print
         if first == "print":
 
             return {
@@ -88,14 +99,21 @@ class Parser:
                 "value": tokens[1:]
             }
 
-        # Parallel Block
-        if first == "parallel":
+        if first == "if":
 
             return {
-                "type": "parallel"
+                "type": "if",
+                "condition": tokens[1:]
             }
 
-        # Unknown Statement
+        if first == "for" and "in" in tokens:
+
+            return {
+                "type": "for",
+                "variable": tokens[1],
+                "iterable": tokens[tokens.index("in") + 1]
+            }
+
         return {
             "type": "unknown",
             "tokens": tokens

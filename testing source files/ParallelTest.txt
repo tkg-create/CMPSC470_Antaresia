@@ -1,0 +1,18 @@
+# Parallel Block Testing
+
+float r1 = 3
+float r2 = 5
+float r3 = 8
+
+float a = 0
+float b = 0
+float c = 0
+
+parallel
+    a = circ_area(r1)
+    b = circ_area(r2)
+    c = circ_area(r3)
+
+print(a)
+print(b)
+print(c)
