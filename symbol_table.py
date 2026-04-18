@@ -52,8 +52,11 @@ class SymbolTable:
         for s in self.symbols.values():
             print(s)
 
+
 # Built-in math functions
 ENV = {
+    "true": True,
+    "false": False,
     "sqrt": math.sqrt,
     "pow": pow,
     "log": math.log,
@@ -65,6 +68,7 @@ ENV = {
     "sph_vol": lambda r: (4/3) * math.pi * r**3
 }
 
+
 def eval_expr(tokens, table):
 
     expr = "".join(tokens)
@@ -73,6 +77,7 @@ def eval_expr(tokens, table):
     env.update(table.values())
 
     return eval(expr, {}, env)
+
 
 def run_parallel(task, variables):
 
@@ -85,9 +90,14 @@ def run_parallel(task, variables):
 
     return task["name"], value
 
-def execute(statements):
 
-    table = SymbolTable()
+def execute(statements, table=None):
+
+    root_call = False
+
+    if table is None:
+        table = SymbolTable()
+        root_call = True
 
     for stmt in statements:
 
@@ -137,7 +147,18 @@ def execute(statements):
                 for v in iterable.value:
                     table.update(stmt["variable"], v)
 
-    table.display()
+        elif t == "if":
+
+            condition = eval_expr(stmt["condition"], table)
+
+            if condition:
+                execute(stmt["body"], table)
+            else:
+                if stmt["else"]:
+                    execute(stmt["else"], table)
+
+    if root_call:
+        table.display()
 
 
 def main():

@@ -7,6 +7,60 @@ class Parser:
         self.filename = filename
         self.statements = []
 
+    def parse_block(self, lines, start_index, parent_indent):
+
+        block = []
+        i = start_index
+
+        while i < len(lines):
+
+            line = lines[i]
+
+            if line.strip() == "":
+                i += 1
+                continue
+
+            indent = len(line) - len(line.lstrip())
+
+            if indent <= parent_indent:
+                break
+
+            tokens = tokenize(line.strip())
+
+            # Handle Nested If
+            if tokens[0] == "if":
+                condition = tokens[1:]
+                body, i = self.parse_block(lines, i + 1, indent)
+
+                block.append({
+                    "type": "if",
+                    "condition": condition,
+                    "body": body,
+                    "else": []
+                })
+
+                continue
+
+            # Handle Nested Parallel
+            if tokens[0] == "parallel":
+                body, i = self.parse_block(lines, i + 1, indent)
+
+                block.append({
+                    "type": "parallel",
+                    "body": body
+                })
+
+                continue
+
+            stmt = self.parse_statement(tokens)
+
+            if stmt:
+                block.append(stmt)
+
+            i += 1
+
+        return block, i
+
     def parse(self):
 
         with open(self.filename) as f:
@@ -29,43 +83,48 @@ class Parser:
                 i += 1
                 continue
 
+            # If Block
+            if tokens[0] == "if":
+
+                condition = tokens[1:]
+
+                body, new_i = self.parse_block(lines, i + 1, indent)
+
+                else_block = []
+
+                if new_i < len(lines):
+
+                    next_tokens = tokenize(lines[new_i].strip())
+
+                    if next_tokens and next_tokens[0] == "else":
+                        else_block, new_i = self.parse_block(lines, new_i + 1, indent)
+
+                self.statements.append({
+                    "type": "if",
+                    "condition": condition,
+                    "body": body,
+                    "else": else_block
+                })
+
+                i = new_i
+                continue
+
             # Parallel Block
             if tokens[0] == "parallel":
-
-                block = []
-                i += 1
-
-                while i < len(lines):
-
-                    line = lines[i]
-
-                    if line.strip() == "":
-                        i += 1
-                        continue
-
-                    new_indent = len(line) - len(line.lstrip())
-
-                    if new_indent <= indent:
-                        break
-
-                    stmt = self.parse_statement(tokenize(line.strip()))
-
-                    if stmt:
-                        block.append(stmt)
-
-                    i += 1
+                body, new_i = self.parse_block(lines, i + 1, indent)
 
                 self.statements.append({
                     "type": "parallel",
-                    "body": block
+                    "body": body
                 })
 
+                i = new_i
                 continue
 
+            # Normal Statements
             stmt = self.parse_statement(tokens)
 
-            if stmt:
-                self.statements.append(stmt)
+            self.statements.append(stmt)
 
             i += 1
 
@@ -97,13 +156,6 @@ class Parser:
             return {
                 "type": "print",
                 "value": tokens[1:]
-            }
-
-        if first == "if":
-
-            return {
-                "type": "if",
-                "condition": tokens[1:]
             }
 
         if first == "for" and "in" in tokens:

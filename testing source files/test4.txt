@@ -1,0 +1,8 @@
+# Example Antaresia Program Take 4
+
+int x = 11
+
+if x > 5
+    if x > 10
+        if x > 12
+            print x
