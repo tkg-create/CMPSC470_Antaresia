@@ -2,7 +2,9 @@
 
 int x = 10
 
-if x > 5 print(x)
+if x > 5
+    print(x)
 
-for i in [1,2,3]
+vector nums = [1,2,3]
+for i in nums
     print(i)

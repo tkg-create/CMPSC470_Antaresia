@@ -39,7 +39,3 @@ for i in numbers
 
 float log_result = log(100)
 float absolute_val = abs(-25)
-
-parallel
-    float temp = pow(3,4)
-    print(temp)

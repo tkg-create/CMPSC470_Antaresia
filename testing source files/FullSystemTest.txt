@@ -1,6 +1,6 @@
 # Antaresia Mathematical Demonstration Program
 
-string program_name = "Antaresia Computational Demonstration/Testing"
+string program_name = "Antaresia Full System Computational Demonstration/Testing"
 
 print(program_name)
 
@@ -72,7 +72,7 @@ print(grid)
 # Loop example
 int i = 0
 for i in numbers
-print(i)
+    print(i)
 
 # Conditional logic
 bool large_circle = a > 20

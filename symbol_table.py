@@ -81,12 +81,22 @@ def eval_expr(tokens, table):
 
 def run_parallel(task, variables):
 
-    expr = "".join(task["value"]).replace(" ", "")
+    # Ensure task is valid (safety guard)
+    if "name" not in task or "value" not in task:
+        raise Exception("Invalid parallel task structure")
 
-    env = dict(ENV)
+    expr = "".join(task["value"])
+
+    env = ENV.copy()
     env.update(variables)
 
-    return task["name"], eval(expr, {"__builtins__": {}}, env)
+    try:
+        value = eval(expr, {"__builtins__": {}}, env)
+
+    except Exception as e:
+        raise Exception(f"Parallel execution error in '{task['name']}': {e}")
+
+    return task["name"], value
 
 
 def execute(statements, table=None):
@@ -124,7 +134,16 @@ def execute(statements, table=None):
 
             tasks = stmt["body"]
 
+            # Validate: ensure only numeric computation tasks
+            for task in tasks:
+                if task["type"] not in ["assignment", "declaration"]:
+                    raise Exception(
+                        f"Invalid statement in parallel block: {task['type']}. "
+                        "Parallel only supports numeric computation."
+                    )
+
             with ProcessPoolExecutor() as pool:
+
                 results = list(
                     pool.map(
                         run_parallel,
@@ -135,6 +154,7 @@ def execute(statements, table=None):
 
             for name, value in results:
                 table.update(name, value)
+
 
         # For Loop
         elif t == "for":

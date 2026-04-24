@@ -1,0 +1,8 @@
+# Test Case 9 - Boolean Print Interaction
+
+float a = circ_area(5)
+
+bool large = a > 50
+
+if large
+    print("large")
