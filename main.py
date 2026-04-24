@@ -116,7 +116,7 @@ def main():
             run_interpreter(file_path)
 
         elif choice == "2":
-            run_compiler(file_path, run_after=False)
+            run_compiler(file_path)
 
         else:
             print("[Error] Invalid selection")
