@@ -1,4 +1,4 @@
-# Test Case 7 - Ignored Control Statements
+# Test Case 7 - Control Flow (Ignored/Restricted Execution)
 
 int x = 10
 
