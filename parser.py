@@ -16,7 +16,7 @@ class Parser:
 
             line = lines[i]
 
-            if line.strip() == "":
+            if line.strip() == "" or line.strip().startswith("#"):
                 i += 1
                 continue
 
@@ -25,39 +25,10 @@ class Parser:
             if indent <= parent_indent:
                 break
 
-            tokens = tokenize(line.strip())
-
-            # Handle Nested If
-            if tokens[0] == "if":
-                condition = tokens[1:]
-                body, i = self.parse_block(lines, i + 1, indent)
-
-                block.append({
-                    "type": "if",
-                    "condition": condition,
-                    "body": body,
-                    "else": []
-                })
-
-                continue
-
-            # Handle Nested Parallel
-            if tokens[0] == "parallel":
-                body, i = self.parse_block(lines, i + 1, indent)
-
-                block.append({
-                    "type": "parallel",
-                    "body": body
-                })
-
-                continue
-
-            stmt, i = self.parse_statement(lines, i, indent)
+            stmt, i = self.parse_statement(lines, i, parent_indent)
 
             if stmt:
                 block.append(stmt)
-
-            i += 1
 
         return block, i
 

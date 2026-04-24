@@ -83,7 +83,7 @@ def run_parallel(task, variables):
 
     # Ensure task is valid (safety guard)
     if "name" not in task or "value" not in task:
-        raise Exception("Invalid parallel task structure")
+        raise Exception("Invalid parallel task")
 
     expr = "".join(task["value"])
 
@@ -133,6 +133,7 @@ def execute(statements, table=None):
         elif t == "parallel":
 
             tasks = stmt["body"]
+            futures = []
 
             # Validate: ensure only numeric computation tasks
             for task in tasks:
@@ -144,13 +145,18 @@ def execute(statements, table=None):
 
             with ProcessPoolExecutor() as pool:
 
-                results = list(
-                    pool.map(
-                        run_parallel,
-                        tasks,
-                        [table.values()] * len(tasks)
+                for task in tasks:
+                    futures.append(
+                        pool.submit(run_parallel, task, table.values())
                     )
-                )
+
+                results = []
+
+                for f in futures:
+                    try:
+                        results.append(f.result())
+                    except Exception as e:
+                        print("Parallel task error:", e)
 
             for name, value in results:
                 table.update(name, value)
