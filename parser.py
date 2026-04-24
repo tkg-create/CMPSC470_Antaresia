@@ -52,7 +52,7 @@ class Parser:
 
                 continue
 
-            stmt = self.parse_statement(tokens)
+            stmt, i = self.parse_statement(lines, i, indent)
 
             if stmt:
                 block.append(stmt)
@@ -122,51 +122,79 @@ class Parser:
                 continue
 
             # Normal Statements
-            stmt = self.parse_statement(tokens)
-
+            stmt, i = self.parse_statement(lines, i, indent)
             self.statements.append(stmt)
-
-            i += 1
 
         return self.statements
 
-    def parse_statement(self, tokens):
+    def parse_statement(self, lines, i, indent):
 
+        tokens = tokenize(lines[i].strip())
         first = tokens[0]
 
+        # Declaration
         if first in DATA_TYPES and len(tokens) >= 4 and tokens[2] == "=":
+            return ({
+                        "type": "declaration",
+                        "datatype": tokens[0],
+                        "name": tokens[1],
+                        "value": tokens[3:]
+                    }, i + 1)
 
-            return {
-                "type": "declaration",
-                "datatype": tokens[0],
-                "name": tokens[1],
-                "value": tokens[3:]
-            }
-
+        # Assignment
         if len(tokens) >= 3 and tokens[1] == "=":
+            return ({
+                        "type": "assignment",
+                        "name": tokens[0],
+                        "value": tokens[2:]
+                    }, i + 1)
 
-            return {
-                "type": "assignment",
-                "name": tokens[0],
-                "value": tokens[2:]
-            }
-
+        # Print
         if first == "print":
+            return ({
+                        "type": "print",
+                        "value": tokens[1:]
+                    }, i + 1)
 
-            return {
-                "type": "print",
-                "value": tokens[1:]
-            }
+        # If Block
+        if first == "if":
+            body, new_i = self.parse_block(lines, i + 1, indent)
+            return ({
+                        "type": "if",
+                        "condition": tokens[1:],
+                        "body": body,
+                        "else": []
+                    }, new_i)
 
+        # While Block
+        if first == "while":
+            body, new_i = self.parse_block(lines, i + 1, indent)
+            return ({
+                        "type": "while",
+                        "condition": tokens[1:],
+                        "body": body
+                    }, new_i)
+
+        # For Block
         if first == "for" and "in" in tokens:
+            body, new_i = self.parse_block(lines, i + 1, indent)
+            return ({
+                        "type": "for",
+                        "variable": tokens[1],
+                        "iterable": tokens[tokens.index("in") + 1],
+                        "body": body
+                    }, new_i)
 
-            return {
-                "type": "for",
-                "variable": tokens[1],
-                "iterable": tokens[tokens.index("in") + 1]
-            }
+        # Parallel Block
+        if first == "parallel":
+            body, new_i = self.parse_block(lines, i + 1, indent)
+            return ({
+                        "type": "parallel",
+                        "body": body
+                    }, new_i)
 
-        return {
-            "type": "unknown",
-            "tokens": tokens
-        }
+        # Unknown
+        return ({
+                    "type": "unknown",
+                    "tokens": tokens
+                }, i + 1)

@@ -103,30 +103,30 @@ def execute(statements, table=None):
 
         t = stmt["type"]
 
+        # Declaration
         if t == "declaration":
 
             value = eval_expr(stmt["value"], table)
-
             table.insert(stmt["name"], stmt["datatype"], value)
 
+        # Assignment
         elif t == "assignment":
 
             value = eval_expr(stmt["value"], table)
-
             table.update(stmt["name"], value)
 
+        # Print
         elif t == "print":
 
             value = eval_expr(stmt["value"], table)
-
             print(value)
 
+        # Parallel
         elif t == "parallel":
 
             tasks = stmt["body"]
 
             with ProcessPoolExecutor() as pool:
-
                 results = list(
                     pool.map(
                         run_parallel,
@@ -138,24 +138,43 @@ def execute(statements, table=None):
             for name, value in results:
                 table.update(name, value)
 
+        # For Loop
         elif t == "for":
 
-            iterable = table.lookup(stmt["iterable"])
+            iterable_symbol = table.lookup(stmt["iterable"])
 
-            if iterable:
+            if iterable_symbol is None:
+                raise Exception(f"Iterable '{stmt['iterable']}' not declared")
 
-                for v in iterable.value:
-                    table.update(stmt["variable"], v)
+            iterable = iterable_symbol.value
 
+            # declare loop variable if needed
+            if not table.lookup(stmt["variable"]):
+                table.insert(stmt["variable"], "int", 0)
+
+            for v in iterable:
+                table.update(stmt["variable"], v)
+                execute(stmt["body"], table)
+
+        # If / Else
         elif t == "if":
 
             condition = eval_expr(stmt["condition"], table)
 
             if condition:
                 execute(stmt["body"], table)
-            else:
-                if stmt["else"]:
-                    execute(stmt["else"], table)
+            elif stmt.get("else"):
+                execute(stmt["else"], table)
+
+        # While Loop
+        elif t == "while":
+
+            while eval_expr(stmt["condition"], table):
+                execute(stmt["body"], table)
+
+        # Unknown
+        else:
+            print("Warning: Unknown statement", stmt)
 
     if root_call:
         table.display()
