@@ -169,6 +169,15 @@ class AntaresiaCompiler:
         header = (
             "from concurrent.futures import ProcessPoolExecutor\n"
             "import math\n\n"
+            "# ---- Antaresia Runtime Library ----\n"
+            "def circ_area(r):\n"
+            "    return math.pi * r * r\n\n"
+            "def tri_area(b, h):\n"
+            "    return (b * h) / 2\n\n"
+            "def rect_area(w, h):\n"
+            "    return w * h\n\n"
+            "def sph_vol(r):\n"
+            "    return (4/3) * math.pi * r**3\n\n"
         )
         code = self.generate_code(statements)
         return header + code

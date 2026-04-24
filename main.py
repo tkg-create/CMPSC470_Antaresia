@@ -1,11 +1,27 @@
 import os
 import sys
 import subprocess
+import math
 
 from parser import Parser
 from symbol_table import execute
 from antaresia_compiler import AntaresiaCompiler
 
+RUNTIME_ENV = {
+    "true": True,
+    "false": False,
+
+    "pow": pow,
+    "sqrt": math.sqrt,
+    "log": math.log,
+    "abs": abs,
+    "factorial": math.factorial,
+
+    "circ_area": lambda r: math.pi * r * r,
+    "tri_area": lambda b, h: (b * h) / 2,
+    "rect_area": lambda w, h: w * h,
+    "sph_vol": lambda r: (4/3) * math.pi * r**3
+}
 
 # UI Helpers
 def banner():
@@ -18,8 +34,7 @@ def menu():
     print("Select Mode:")
     print("1. Interpret (.txt file)")
     print("2. Compile to Python (.py)")
-    print("3. Compile + Run")
-    print("4. Exit\n")
+    print("3. Exit\n")
 
 
 def find_file(filename):
@@ -60,7 +75,7 @@ def run_interpreter(file_path):
 
 
 # Mode 2: Compiler
-def run_compiler(file_path, run_after=False):
+def run_compiler(file_path):
 
     print("\n[Compiler Mode]\n")
 
@@ -77,10 +92,6 @@ def run_compiler(file_path, run_after=False):
     print(output_code)
     print("---------------------------------\n")
 
-    if run_after:
-        print("[Executing Generated Python Program]\n")
-        subprocess.run([sys.executable, out_file])
-
 
 # Main Loop
 def main():
@@ -90,9 +101,9 @@ def main():
         banner()
         menu()
 
-        choice = input("Enter choice (1-4): ").strip()
+        choice = input("Enter choice (1-3): ").strip()
 
-        if choice == "4":
+        if choice == "3":
             print("\nExiting Antaresia System...\n")
             break
 
@@ -106,9 +117,6 @@ def main():
 
         elif choice == "2":
             run_compiler(file_path, run_after=False)
-
-        elif choice == "3":
-            run_compiler(file_path, run_after=True)
 
         else:
             print("[Error] Invalid selection")

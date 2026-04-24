@@ -73,22 +73,20 @@ def eval_expr(tokens, table):
 
     expr = "".join(tokens)
 
-    env = ENV.copy()
+    env = dict(ENV)
     env.update(table.values())
 
-    return eval(expr, {}, env)
+    return eval(expr, {"__builtins__": {}}, env)
 
 
 def run_parallel(task, variables):
 
-    expr = "".join(task["value"])
+    expr = "".join(task["value"]).replace(" ", "")
 
-    env = ENV.copy()
+    env = dict(ENV)
     env.update(variables)
 
-    value = eval(expr, {}, env)
-
-    return task["name"], value
+    return task["name"], eval(expr, {"__builtins__": {}}, env)
 
 
 def execute(statements, table=None):
