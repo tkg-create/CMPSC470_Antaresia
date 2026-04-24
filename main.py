@@ -1,6 +1,4 @@
 import os
-import sys
-import subprocess
 import math
 
 from parser import Parser
@@ -23,10 +21,11 @@ RUNTIME_ENV = {
     "sph_vol": lambda r: (4/3) * math.pi * r**3
 }
 
+
 # UI Helpers
 def banner():
     print("\n" + "=" * 50)
-    print("        ANTARESiA LANGUAGE SYSTEM")
+    print("        ANTARESIA LANGUAGE SYSTEM")
     print("=" * 50 + "\n")
 
 
